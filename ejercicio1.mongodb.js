@@ -1,6 +1,10 @@
 use("Animes")
-// db.createCollection("armas")
-// db.createCollection("personajes")
+db.createCollection("armas")
+db.createCollection("personajes")
+
+db.personajes.insertOne({
+  _id: 1, nombre: "Tanjiro Kamado", anime : "Demon Slayer", poder : 4000, es_humano: true
+})
 
 db.personajes.insertMany([
   {_id: 4, nombre: "Saitama", anime: "One Punch Man", poder: 10000, es_humano: true},
