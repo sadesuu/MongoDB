@@ -1,5 +1,5 @@
 use('PlanetasDB')
-db.createCollection("objetos_espaciales")  
+db.createCollection('objetos_espaciales')
 db.objetos_espaciales.insertMany([
   {
     "nombre": "Marte",
@@ -93,82 +93,108 @@ db.objetos_espaciales.insertMany([
 ]);
 
 //1. Encuentra todos los documentos cuyo campo tipo sea Planeta.
-db.objetos_espaciales.find({ tipo: "Planeta" })
+db.objetos_espaciales.find({tipo: 'Planeta'})
 
-//2. Encuentra los objetos espaciales que estén a menos de 100,000,000 km de la Tierra.
-db.objetos_espaciales.find({ distancia_tierra_km: { $lt: 100000000 } })
+//2. Encuentra los objetos espaciales que esten a menos de 100,000,000 km de la Tierra.
 
-//3. Busca todos los objetos que tengan Gigante gaseoso o Habitable dentro de su lista de características.
-db.objetos_espaciales.find({ caracteristicas: { $in: ["Gigante gaseoso", "Habitable"] } })
+db.objetos_espaciales.find({distancia_tierra_km: {$lt:100000}})
 
-//4. Encuentra objetos que sean de tipo Planeta y que además tengan una masa_indice mayor a 50.
-db.objetos_espaciales.find({ tipo: "Planeta", masa_indice: { $gt: 50 } })
+//3. Busca todos los objetos que tengan Gigante gaseoso o Habitable dentro de su lista de caracteristicas.
 
-//5. Muestra los 3 objetos más lejanos a la Tierra, ordenados de mayor a menor distancia.
-db.objetos_espaciales.find().sort({ distancia_tierra_km: -1 }).limit(3)
+db.objetos_espaciales.find({caracteristicas: {
+  $in: ['Gigante gaseoso','Habitable']
+}})
 
-//6. Ordena alfabéticamente por nombre, ignora los 2 primeros resultados y muestra los 3 siguientes.
-db.objetos_espaciales.find().sort({ nombre: 1 }).skip(2).limit(3)
+//4. Encuentra objetos que sean de tipo Planeta y queadem ́as tengan una masa indice mayor a 50.
 
-//7. El telescopio Hubble ha necesitado una nueva reparación. Actualiza su documento para establecer el campo estado a En mantenimiento.
-db.objetos_espaciales.updateOne(
-  { nombre: "Hubble" },
-  { $set: { estado: "En mantenimiento" } }
-)
+db.objetos_espaciales.find({tipo: 'Planeta', masa_indice:{$gt:50}})
 
-//8. Se ha descubierto una nueva característica en Marte: ahora sabemos que tiene Agua subterránea. Añade este valor a su array de características.
-db.objetos_espaciales.updateOne(
-  { nombre: "Marte" },
-  { $push: { caracteristicas: "Agua subterránea" } }
-)
+// 5. Muestra los 3 objetos más lejanos a la Tierra, ordenados de mayor a menor distancia.
 
-//9. Sobre la Voyager 1, incrementa su campo misiones_exitosas en 1.
-db.objetos_espaciales.updateOne(
-  { nombre: "Voyager 1" },
-  { $inc: { misiones_exitosas: 1 } }
-)
+db.objetos_espaciales.find().sort({distancia_tierra_km:-1}).limit(3)
 
-//10. El Sputnik 1 ya no existe físicamente (se quemó en la atmósfera). Elimina su documento de la base de datos.
-db.objetos_espaciales.deleteOne({ nombre: "Sputnik 1" })
+// 6. Ordena alfabeticamente por nombre, ignora los 2 primeros resultados y muestra los 3 siguientes.
 
-//11. Encuentra todos los objetos cuyo nombre empiece por la letra "S".
-db.objetos_espaciales.find({ nombre: { $regex: /^S/ } })
+db.objetos_espaciales.find().sort({nombre:1}).skip(2).limit(3)
 
-//12. Hay objetos que tienen lunas y otros que no. Encuentra solo los documentos que tengan el campo lunas_principales (o lunas_conocidas), independientemente de su valor.
-db.objetos_espaciales.find({ $or: [ { lunas_principales: { $exists: true } }, { lunas_conocidas: { $exists: true } } ] })
+// 7. El telescopio Hubble ha necesitado una nueva reparaci ́on. Actualiza su documento para establecer el campo
+// estado a En mantenimiento.
 
-//13. Encuentra los objetos espaciales (satélites o sondas) que fueron lanzados entre el año 1950 y 1980.
+db.objetos_espaciales.updateOne({nombre: "Hubble"}, {$set: {estado: "En mantenimiento"}})
+
+// 8. Se ha descubierto una nueva caracter ́ıstica en Marte: ahora sabemos que tiene Agua subterr ́anea. A ̃nade este
+// valor a su array de caracteristicas.
+
+db.objetos_espaciales.updateOne({nombre: "Marte"}, {$push: {caracteristicas: "Agua subterránea"}})
+db.objetos_espaciales.find({nombre: "Marte"})
+
+// 9. Sobre la Voyager 1, incrementa su campo misiones exitosas en 1.
+
+db.objetos_espaciales.updateOne({nombre: "Voyager 1"}, {$inc:{misiones_exitosas: 1}})
+
+// 10. El Sputnik 1 ya no existe f ́ısicamente (se quem ́o en la atm ́osfera). Elimina su documento de la base de datos.
+
+db.objetos_espaciales.deleteMany({nombre: "Sputnik 1"})
+
+// 11. Encuentra todos los objetos cuyo nombre empiece por la letra ”S”.
+
+db.objetos_espaciales.find({nombre: {$regex: /^S/}})
+
+// 12. Hay objetos que tienen lunas y otros que no. Encuentra solo los documentos que tengan el campo lunas principales
+// (o lunas conocidas), independientemente de su valor.
+
 db.objetos_espaciales.find({
-  tipo: { $in: ["Satelite Artificial", "Sonda Espacial"] },
-  lanzamiento: { $gte: 1950, $lte: 1980 }
+  $or:[
+    {lunas_conocidas: {$exists: true}},
+    {lunas_principales: {$exists: true}}
+  ]
 })
 
-//14. Queremos estudiar todo lo que no sean planetas. Busca todos los documentos cuyo tipo NO sea Planeta.
-db.objetos_espaciales.find({ tipo: { $ne: "Planeta" } })
+// 13. Encuentra los objetos espaciales (sat ́elites o sondas) que fueron lanzados entre el a ̃no 1950 y 1980.
 
-//15. Encuentra los documentos que sean de tipo Estrella o que sean de tipo Cometa.
-db.objetos_espaciales.find({ tipo: { $in: ["Estrella", "Cometa"] } })
+db.objetos_espaciales.find({
+  $or:[
+    {tipo: "Satelite Artificial"},
+    {tipo: "Sonda Espacial"}
+  ],
+  lanzamiento: {$gte: 1950, $lte: 1980}
+  
+})
 
-//16. Encuentra el planeta que tiene exactamente 4 lunas registradas en su array de lunas_principales.
-db.objetos_espaciales.find({ lunas_principales: { $size: 4 } })
+// 14. Queremos estudiar todo lo que no sean planetas. Busca todos los documentos cuyo tipo NO sea Planeta.
 
-//17. El campo descubierto con valor Antigüedad es redundante para ciertos análisis. Elimina este campo del documento de Júpiter.
-db.objetos_espaciales.updateOne(
-  { nombre: "Jupiter" },
-  { $unset: { descubierto: "" } }
-)
+db.objetos_espaciales.find({tipo: {$ne: "Planeta"}})
 
-//18. Resulta que Marte ya no se considera Polvoriento para este estudio. Elimina ese valor específico de su array de características.
-db.objetos_espaciales.updateOne(
-  { nombre: "Marte" },
-  { $pull: { caracteristicas: "Polvoriento" } }
-)
+// 15. Encuentra los documentos que sean de tipo Estrella o que sean de tipo Cometa.
 
-//19. Para estandarizar la base de datos, cambia el nombre del campo masa_indice a masa_relativa en todos los documentos.
-db.objetos_espaciales.updateMany(
-  {},
-  { $rename: { "masa_indice": "masa_relativa" } }
-)
+db.objetos_espaciales.find({
+  $or:[
+    {tipo: "Estrella"},
+    {tipo:"Cometa"}
+  ]
+})
 
-//20. Muestra todos los objetos ordenados primero por tipo en orden alfabético ascendente, y dentro de cada tipo, por distancia_tierra_km en orden descendente.
-db.objetos_espaciales.find().sort({ tipo: 1, distancia_tierra_km: -1 })
+// 16. Encuentra el planeta que tiene exactamente 4 lunas registradas en su array de lunas principales.
+
+db.objetos_espaciales.find({tipo: "Planeta", lunas_principales: {$size: 4}})
+
+// 17. El campo descubierto con valor Antig ̈uedad es redundante para ciertos an ́alisis. Elimina este campo del
+// documento de Jupiter.
+
+db.objetos_espaciales.updateMany({nombre: "Jupiter"}, {$unset: {descubierto:""}})
+db.objetos_espaciales.find({nombre:"Jupiter"})
+
+// 18. Resulta que Marte ya no se considera Polvoriento para este estudio. Elimina ese valor espec ́ıfico de su array de
+// caracteristicas.
+
+db.objetos_espaciales.updateMany({nombre: "Marte"}, {$pull: {caracteristicas: "Polvoriento"}})
+
+// 19. Para estandarizar la base de datos, cambia el nombre del campo masa indice a masa relativa en todos los
+// documentos.
+
+db.objetos_espaciales.updateMany({}, {$rename:{masa_indice: "masa_relativa"}})
+
+// 20. Muestra todos los objetos ordenados primero por tipo en orden alfab ́etico ascendente, y dentro de cada tipo,
+// por distancia tierra km en orden descendente.
+
+db.objetos_espaciales.find({}).sort({tipo: 1, distancia_tierra_km: -1})
