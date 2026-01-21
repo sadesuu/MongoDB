@@ -1,5 +1,5 @@
 // 1. Crear base de datos (se crea automáticamente al usarla)
-use('examen_bases_datos')
+use('examen_23_24')
 
 // 2. Crear colección orders e insertar documentos
 db.createCollection("orders")
@@ -280,12 +280,12 @@ db.books.insertMany([
 
 
 //Ejercicio 1
-use('examen_bases_datos')
+use('examen_23_24')
 
 db.orders.find().sort({totalPrice: 1}).skip(3).limit(1)
 
 //Ejercicio 2
-use('examen_bases_datos')
+use('examen_23_24')
 
 db.orders.aggregate([
     {
@@ -301,7 +301,7 @@ db.orders.aggregate([
 ])
 
 //Ejercicio 3
-use('examen_bases_datos')
+use('examen_23_24')
 
 let totalPrice = 0
 let count = 0
@@ -318,7 +318,7 @@ print(`Average total price for ${customer}: ${media}$`)
 
 
 //Ejercicio 4 
-use('examen_bases_datos')
+use('examen_23_24')
 
 db.products.aggregate([
     {
@@ -338,7 +338,7 @@ db.products.aggregate([
 
 //Ejercicio 5
 
-use('examen_bases_datos')
+use('examen_23_24')
 
 db.books.find({
     title: /The/,
