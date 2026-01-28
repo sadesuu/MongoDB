@@ -325,52 +325,328 @@ db.videogames.aggregate([
 use('juegos')
 db.videogames.aggregate([
     {
-        $match: {
-          
+        $group: {
+          _id: "$publisher",
+          totalCopias: { $sum: "$copiesSold"}
         }
     },
+    {
+      $project: {
+        _id: 0,
+        publisher: "$_id",
+        totalCopias: "$totalCopias"
+      }
+    },
+    {
+      $sort: { totalCopias: -1 }
+    }
 ])
 //Ejercicio 6
 use('juegos')
+db.videogames.aggregate([
+  {
+    $match: {
+      rating: {$gt:90},
+      releaseYear: { $lt: 2016 }
+    }
+  },
+  {
+    $project: {
+      _id:0,
+      titulo: "$title",
+      rating: "$rating",
+      año_lanzamiento:"$releaseYear"
+    }
+  }
+])
 
 //Ejercicio 7
 use('juegos')
-
+db.videogames.aggregate([
+  {
+    $group: {
+      _id: "$developer.country",
+      media_copiasVendidas: {$avg:"$copiesSold"}
+    }
+  },
+  {
+    $sort: {
+      media_copiasVendidas: -1
+    }
+  }
+])
 //Ejercicio 8
 use('juegos')
+db.videogames.aggregate([
+  {
+    $unwind: "$genre"
+  },
+  {
+    $sort: {
+      copiesSold: -1
+    }
+  },
+  {
+    $group: {
+      _id: "$genre",
+      primerJuego: {$first: "$title"},
+      copias: {$first: "$copiesSold"}
 
+    }
+  },
+  {
+    $project: {
+      _id: 0,
+      genero: "$_id",
+      title: "$primerJuego",
+      copias: "$copias"
+    }
+  }
+])
 //Ejercicio 9
+//Muestra los desarrolladores que han creado m ́as de un videojuego en la colecci ́on. Muestra el nombre del
+//desarrollador y la cantidad de juegos.
 use('juegos')
+db.videogames.aggregate([
+  {
+    $group: {
+      _id: "$developer.name",
+      cantidad_juegos: { $sum: 1 }
+    }
+  },
+  {
+    $match: {
+      cantidad_juegos: { $gt: 1 }
+    }
+  },
+  {
+    $project: {
+      _id: 0,
+      desarrollador: "$_id",
+      cantidad_juegos: "$cantidad_juegos"
+    }
+  }
+])
 
 //Ejercicio 10
+// Calcula el precio total que costar ́ıa comprar todos los videojuegos de cada plataforma. Considera que un juego
+// puede estar en m ́ultiples plataformas.
 use('juegos')
+db.videogames.aggregate([
+  {
+    $unwind: "$platforms"
+  },
+  {
+    $group: {
+      _id: "$platforms",
+      precio_total: { $sum: "$price" }
+    }
+  },
+  {
+    $project: {
+      _id: 0,
+      plataforma: "$_id",
+      precio_total: "$precio_total"
+    }
+  }
+])
 
 //Ejercicio 11
+// Encuentra los videojuegos con un precio inferior a 30 y que tengan al menos 2 premios. Muestra el t ́ıtulo, precio
+// y n ́umero de premios.
 use('juegos')
+db.videogames.aggregate([
+  {
+    $match: {
+      price: { $lt: 30 },
+      $expr: { $gte: [ { $size: "$awards" }, 2 ] }
+    }
+  },
+  {
+    $project: {
+      _id: 0,
+      titulo: "$title",
+      precio: "$price",
+      numero_premios: { $size: "$awards" }
+    }
+  }
+])
 
 //Ejercicio 12
+// Muestra el a ̃no de lanzamiento con mayor n ́umero de videojuegos publicados. El resultado debe mostrar el a ̃no
+// y la cantidad de juegos.
 use('juegos')
-
+db.videogames.aggregate([
+  {
+    $group: {
+      _id: "$releaseYear",
+      cantidad_juegos: { $sum: 1 }
+    }
+  },
+  {
+    $sort: { cantidad_juegos: -1 }
+  },
+  {
+    $limit: 1
+  },
+  {
+    $project: {
+      _id: 0,
+      anio: "$_id",
+      cantidad_juegos: "$cantidad_juegos"
+    }
+  }
+])
 //Ejercicio 13
+// Calcula el rating promedio de los videojuegos desarrollados por empresas de cada pa ́ıs, pero solo para aquellos
+// pa ́ıses que tengan un rating promedio superior a 92.
 use('juegos')
-
+db.videogames.aggregate([
+  {
+    $group: {
+      _id: "$developer.country",
+      rating_promedio: { $avg: "$rating" }
+    }
+  },
+  {
+    $match: {
+      rating_promedio: { $gt: 92 }
+    }
+  },
+  {
+    $project: {
+      _id: 0,
+      pais: "$_id",
+      rating_promedio: "$rating_promedio"
+    }
+  }
+])
 //Ejercicio 14
+// Encuentra los videojuegos que contengan la palabra “The” en el t ́ıtulo y que tengan un rating superior a 92.
+// Usa una expresi ́on regular y muestra t ́ıtulo, rating y desarrollador.
 use('juegos')
+db.videogames.aggregate([
+  {
+    $match: {
+      title: { $regex: /The/, $options: 'i' },
+      rating: { $gt: 92 }
+    }
+  },
+  {
+    $project: {
+      _id: 0,
+      titulo: "$title",
+      rating: "$rating",
+      desarrollador: "$developer.name"
+    }
+  }
+])
 
 //Ejercicio 15
+// Muestra los 3 g ́eneros con mayor promedio de copias vendidas. Debe aparecer el g ́enero y el promedio de ventas.
 use('juegos')
-
+db.videogames.aggregate([
+  {
+    $unwind: "$genre"
+  },
+  {
+    $group: {
+      _id: "$genre",
+      promedio_copias_vendidas: { $avg: "$copiesSold" }
+    }
+  },
+  {
+    $sort: { promedio_copias_vendidas: -1 }
+  },
+  {
+    $limit: 3
+  },
+  {
+    $project: {
+      _id: 0,
+      genero: "$_id",
+      promedio_copias_vendidas: "$promedio_copias_vendidas"
+    }
+  }
+])
 //Ejercicio 16
+// Crea una agregaci ́on que muestre el videojuego m ́as caro y el m ́as barato de cada a ̃no de lanzamiento. El
+// resultado debe incluir el a ̃no, y para cada uno: t ́ıtulo del juego m ́as caro, su precio, t ́ıtulo del juego m ́as barato
+// y su precio.
 use('juegos')
+db.videogames.aggregate([
+  {
+    $group: {
+      _id: "$releaseYear",
+      juego_mas_caro: { $max: "$price" },
+      juego_mas_barato: { $min: "$price" },
+      titulo_mas_caro: { $first: "$title" },
+      titulo_mas_barato: { $first: "$title" }
+    }
+  },
+  {
+    $project: {
+      _id: 0,
+      anio: "$_id",
+      titulo_mas_caro: "$titulo_mas_caro",
+      precio_mas_caro: "$juego_mas_caro",
+      titulo_mas_barato: "$titulo_mas_barato",
+      precio_mas_barato: "$juego_mas_barato"
+    }
+  }
+])
 
 //Ejercicio 17
+// Usando un cursor, calcula la media del rating de todos los videojuegos desarrollados por “FromSoftware”.
+// Muestra el resultado en el siguiente formato: Average rating for FromSoftware games: XX.XX
 use('juegos')
+// const cursor = db.videogames.find({ "developer.name": "FromSoftware" });
+let totalRating = 0;
+let count = 0;
+
+while (cursor.hasNext()) {
+  const game = cursor.next();
+  totalRating += game.rating;
+  count++;
+}
+
+const averageRating = (totalRating / count).toFixed(2);
+print(`Average rating for FromSoftware games: ${averageRating}`);
 
 //Ejercicio 18
 use('juegos')
+// const cursor = db.videogames.find({"price": {$gt:50}})
+while (cursor.hasNext()) {
+  const game = cursor.next();
+  print(`Title: ${game.title}, Price: ${game.price}`);
+}
 
 //Ejercicio 19
 use('juegos')
+// const cursor = db.videogames.find({}).sort({copiesSold: -1}).limit(1)
+while (cursor.hasNext()) {
+  const game = cursor.next();
+  print(`Best-selling game: ${game.title}, Copies Sold: ${game.copiesSold}`);
+}
 
 //Ejercicio 20
+// Usando un cursor, cuenta cu ́antos videojuegos hay de cada plataforma. Ten en cuenta que cada videojuego
+// puede tener m ́ultiples plataformas. Muestra el resultado con el formato: Platform: XXXXX - Count: XX
 use('juegos')
+const platformCounts = {};
+const cursor = db.videogames.find({});
+
+while (cursor.hasNext()) {
+  const game = cursor.next();
+  game.platforms.forEach(platform => {
+    if (platformCounts[platform]) {
+      platformCounts[platform]++;
+    } else {
+      platformCounts[platform] = 1;
+    }
+  });
+}
+
+for (let platform in platformCounts) {
+  print(`Platform: ${platform} - Count: ${platformCounts[platform]}`);
+}
