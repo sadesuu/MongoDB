@@ -4,130 +4,193 @@ use("pokemon")
 // 1. Encuentra el Pokémon con el tercer HP más alto. Muestra pokedexNumber, name y stats.hp.
 use("pokemon")
 db.pokemons.aggregate([
-    {
-        $sort: {"stats.hp": -1}
-    },
-    {
-        $project: {
-          pokedexNumber: "$pokedexNumber",
-          nombre: "$name",
-          hp: "$stats.hp"
-        }
-    },
-    {
-        $skip: 2
-    },
-    {
-        $limit: 1
+  {
+    $sort: { "stats.hp": -1 }
+  },
+  {
+    $project: {
+      pokedexNumber: "$pokedexNumber",
+      nombre: "$name",
+      hp: "$stats.hp"
     }
-   
+  },
+  {
+    $skip: 2
+  },
+  {
+    $limit: 1
+  }
+
 ])
 
 // 2. Muestra un solo Pokémon que tenga exactamente 102 movimientos (usa $size).
 use("pokemon")
 db.pokemons.aggregate([
-   {
+  {
     $project: {
-      pokedexNumber:1,
-      name:1,
-      numMoves:{$size:"$moves"}
+      pokedexNumber: 1,
+      name: 1,
+      numMoves: { $size: "$moves" }
     }
-   },
-   {
+  },
+  {
     $match: {
-      numMoves:102
+      numMoves: 102
     }
-   },
-   {
+  },
+  {
     $limit: 1
-   }
+  }
 ])
 // 3. Calcula el promedio de ataque (stats.attack) por generación. Muestra la generación y el promedio.
 use("pokemon")
 db.pokemons.aggregate([
-    {
-        $group: {
-          _id: "$generation",
-          avgPromedio: {$avg:"$stats.attack"}
-          
-        }
-    },
-    {
-        $project: {
-          _id:1,
-          ataquePromedio: {$round:["$avgPromedio", 2]}
-        }
-    },
-    {
-        $sort: {
-          _id: 1
-        }
+  {
+    $group: {
+      _id: "$generation",
+      avgPromedio: { $avg: "$stats.attack" }
+
     }
+  },
+  {
+    $project: {
+      _id: 1,
+      ataquePromedio: { $round: ["$avgPromedio", 2] }
+    }
+  },
+  {
+    $sort: {
+      _id: 1
+    }
+  }
 ])
 // 4. Encuentra todos los Pokémon legendarios y muestra solo el pokedexNumber, name y isLegendary.
 use("pokemon")
 db.pokemons.aggregate([
-    {
-        $match: {
-          isLegendary: true
-        }
-    },
-    {
-        $project: {
-          pokedexNumber:1,
-          name:1,
-          isLegendary:1
-        }
+  {
+    $match: {
+      isLegendary: true
     }
+  },
+  {
+    $project: {
+      pokedexNumber: 1,
+      name: 1,
+      isLegendary: 1
+    }
+  }
 ])
 // 5. Calcula cuántos Pokémon hay de cada tipo principal. Ordena de mayor a menor.
 use("pokemon")
 db.pokemons.aggregate([
-    {
-      $unwind: "$types"
-    },
-    {
-        $group: {
-          _id: "$types",
-         cantPokemon: {$sum:1}
-        }
-    },
-    {
-        $sort: {
-          cantPokemon: -1
-        }
+  {
+    $unwind: "$types"
+  },
+  {
+    $group: {
+      "_id": "$types",
+      cantPokemon: { $sum: 1 }
     }
+  },
+  {
+    $sort: {
+      cantPokemon: -1
+    }
+  }
 ])
 // 6. Muestra los Pokémon que tengan velocidad (stats.speed) mayor a 100 y peso menor a 50. Muestra name, stats.speed y weight.
 use("pokemon")
 db.pokemons.aggregate([
   {
     $match: {
-      "$$stats.speed": {$gt:100},
-      "$$weight": {$lt:50},
+      "stats.speed": { $gt: 100 },
+      "weight": { $lt: 50 },
 
     }
   },
   {
     $project: {
-      name:1,
-      "stats.speed":1,
+      name: 1,
+      "stats.speed": 1,
       "weight": 1
     }
   }
 ])
 // 7. Agrupa los Pokémon por generación y calcula el promedio de HP de cada generación. Ordena de mayor a menor.
 use("pokemon")
-
+db.pokemons.aggregate([
+  {
+    $group: {
+      _id: "$generation",
+      promedioHP: { $avg: "$stats.hp" }
+    }
+  },
+  {
+    $sort: {
+      promedioHP: -1
+    }
+  }
+])
 // 8. Encuentra el Pokémon más pesado de cada tipo. Muestra el tipo (_id), name y weight.
 use("pokemon")
-
+db.pokemons.aggregate([
+  {
+    $unwind: "$types"
+  },
+  {
+    $sort: {
+      "weight": -1
+    }
+  },
+  {
+    $group: {
+      _id: "$types",
+      name: { $first: "$name" },
+      weight: { $first: "$weight" }
+    }
+  }
+])
 // 9. Encuentra las habilidades ocultas (hidden: true) que aparecen en más de un Pokémon. Muestra el nombre de la habilidad y la cantidad de Pokémon que la tienen.
 use("pokemon")
-
+db.pokemons.aggregate([
+  {
+    $unwind: "$abilities"
+  },
+  {
+    $match: {
+      "abilities.hidden": true
+    }
+  },
+  {
+    $group: {
+      _id: "$abilities.name",
+      pokemons_con_habilidad_oculta: {$sum: 1}
+    }
+  },
+  {
+    $match: {
+      pokemons_con_habilidad_oculta: {$gte:2}
+    }
+  },
+  {
+    $sort:{
+      pokemons_con_habilidad_oculta:-1
+    }
+  }
+])
 // 10. Calcula el peso total de todos los Pokémon de cada tipo. Ten en cuenta que un Pokémon puede tener varios tipos.
 use("pokemon")
-
+db.pokemons.aggregate([
+  {
+    $unwind: "$types"
+  },
+  {
+    $group: {
+      _id: "$types",
+      totalPeso: {$sum: "$weight"}
+    }
+  }
+])
 // 11. Encuentra los Pokémon que tengan más de 80 en ataque y 2 tipos, siendo uno de ellos 'ground'. Muestra: name, stats.attack y la lista de tipos.
 use("pokemon")
 

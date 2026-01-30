@@ -446,7 +446,7 @@ db.videogames.aggregate([
     $project: {
       _id: 0,
       plataforma: "$_id",
-      precio_total: "$precio_total"
+      precio_total: {$round: ["$precio_total",2]}
     }
   }
 ])
