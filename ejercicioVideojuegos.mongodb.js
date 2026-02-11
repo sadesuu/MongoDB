@@ -289,7 +289,7 @@ db.videogames.aggregate([
   {
     $project: {
       _id: '$_id',
-      totalPlatforms: {$size:'$platforms'}
+      totalPlatforms: { $size: '$platforms' }
     }
   }
 ])
@@ -303,7 +303,7 @@ db.videogames.aggregate([
   {
     $group: {
       _id: '$genre',
-      avgPrice: {$avg: '$price'}
+      avgPrice: { $avg: '$price' }
     }
   }
 ])
@@ -318,9 +318,8 @@ db.videogames.aggregate([
   },
   {
     $project: {
-      _id: 0,
+      _id: '$developer.name',
       title: 1,
-      'developer.name': 1
     }
   }
 ])
@@ -331,7 +330,7 @@ db.videogames.aggregate([
   {
     $group: {
       _id: '$publisher',
-      totalCopies: {$sum:1}
+      totalCopies: { $sum: 1 }
     }
   },
   {
@@ -346,16 +345,16 @@ use('juegos')
 db.videogames.aggregate([
   {
     $match: {
-      rating: {$gt: 90},
-      releaseYear: {$gt: 2016}
+      rating: { $gt: 90 },
+      releaseYear: { $gt: 2016 }
     }
   },
   {
     $project: {
-      _id:0,
-      title:1,
-      rating:1,
-      releaseYear:1
+      _id: 0,
+      title: 1,
+      rating: 1,
+      releaseYear: 1
     }
   }
 ])
@@ -370,6 +369,11 @@ db.videogames.aggregate([
         $avg: '$copiesSold'
       }
     }
+  },
+  {
+    $sort: {
+      avgCopiesSold: -1
+    }
   }
 ])
 
@@ -381,15 +385,15 @@ db.videogames.aggregate([
   },
   {
     $sort: {
-      genre:1,
+      genre: 1,
       copiesSold: -1
     }
   },
   {
     $group: {
       _id: '$genre',
-      title: {$first:'$title'},
-      copiesSold: {$first:'$copiesSold'}
+      title: { $first: '$title' },
+      copiesSold: { $first: '$copiesSold' }
     }
   }
 ])
@@ -400,18 +404,18 @@ db.videogames.aggregate([
   {
     $group: {
       _id: '$developer.name',
-      totalGames: {$sum:1}
+      totalGames: { $sum: 1 }
     }
   },
   {
     $match: {
-      totalGames: {$gt:1}
+      totalGames: { $gt: 1 }
     }
   },
   {
     $project: {
-      _id:'$_id',
-      totalGames:1
+      _id: '$_id',
+      totalGames: 1
     }
   }
 ])
@@ -425,7 +429,7 @@ db.videogames.aggregate([
   {
     $group: {
       _id: '$platforms',
-      toralPrice: {$sum:'$price'}
+      toralPrice: { $sum: '$price' }
     }
   }
 ])
@@ -438,13 +442,13 @@ db.videogames.aggregate([
       _id: 1,
       title: 1,
       price: 1,
-      totalAwards: {$size: '$awards'}
+      totalAwards: { $size: '$awards' }
     }
   },
   {
     $match: {
-      price: {$lt: 30},
-      totalAwards: {$gte: 2}
+      price: { $lt: 30 },
+      totalAwards: { $gte: 2 }
     }
   }
 ])
@@ -456,7 +460,7 @@ db.videogames.aggregate([
     $group: {
       _id: '$releaseYear',
       totalGames: {
-        $sum:1
+        $sum: 1
       }
     }
   }
@@ -468,18 +472,18 @@ db.videogames.aggregate([
   {
     $group: {
       _id: '$developer.country',
-      avgRating: {$avg:'$rating'}
+      avgRating: { $avg: '$rating' }
     }
   },
   {
     $match: {
-      avgRating: {$gt:92}
+      avgRating: { $gt: 92 }
     }
   },
   {
     $project: {
-      _id:'$_id',
-      avgRating:1
+      _id: '$_id',
+      avgRating: 1
     }
   }
 ])
@@ -489,16 +493,16 @@ use('juegos')
 db.videogames.aggregate([
   {
     $match: {
-      title: {$regex:'The'},
-      rating:{$gt:92}
+      title: { $regex: 'The' },
+      rating: { $gt: 92 }
     }
   },
   {
     $project: {
-      _id:0,
+      _id: 0,
       title: 1,
-      rating:1,
-      developer:1
+      rating: 1,
+      developer: 1
     }
   }
 ])
@@ -513,7 +517,7 @@ db.videogames.aggregate([
     $group: {
       _id: '$genre',
       avgCopiesSold: {
-        $avg:'$copiesSold'
+        $avg: '$copiesSold'
       }
     }
   },
@@ -539,10 +543,10 @@ db.videogames.aggregate([
   {
     $group: {
       _id: '$releaseYear',
-      maxPrice: {$first:'$price'},
-      maxTitle: {$first:'$title'},
-      minPrice: {$last:'$price'},
-      minTitle: {$last:'$title'}
+      maxPrice: { $first: '$price' },
+      maxTitle: { $first: '$title' },
+      minPrice: { $last: '$price' },
+      minTitle: { $last: '$title' }
     }
   },
   {
@@ -561,24 +565,24 @@ use('juegos')
 const cursor = db.videogames.find({})
 let totalRating = 0
 let count = 0
-while(cursor.hasNext()){
+while (cursor.hasNext()) {
   const doc = cursor.next()
 
-  if(doc.developer.name == "FromSoftware"){
+  if (doc.developer.name == "FromSoftware") {
     totalRating += doc.rating
     count++
   }
 }
 
 let media = totalRating / count
-  console.log("Average rating for FromSoftware games: " + media)
+console.log("Average rating for FromSoftware games: " + media)
 
 //Ejercicio 18
 use('juegos')
-const cursor2= db.videogames.find({})
+const cursor2 = db.videogames.find({})
 
 cursor2.forEach(doc => {
-  if(doc.price>50){
+  if (doc.price > 50) {
     console.log(`Title: ${doc.title} - Price: ${doc.price}`)
   }
 });
@@ -588,8 +592,8 @@ use('juegos')
 const cursor3 = db.videogames.find({})
 let aux = 0
 let titulo = ''
-cursor3.forEach(doc =>{
-  if(doc.copiesSold > aux){
+cursor3.forEach(doc => {
+  if (doc.copiesSold > aux) {
     aux = doc.copiesSold
     titulo = doc.title
   }
@@ -601,20 +605,37 @@ console.log(`El videojuego con mayores ventas es ${titulo} con un total de ${aux
 use('juegos')
 const cursor4 = db.videogames.find({})
 let dic_plarform = {}
-
-cursor4.forEach(doc =>{
-  doc.platforms.forEach(platform =>{
-  if(dic_plarform[platform]){
-    dic_plarform[platform] += 1
-  }else{
-    dic_plarform[platform] = 1
+while (cursor4.hasNext()) {
+  const doc = cursor4.next()
+  const platforms = doc.platforms
+  let j = 0
+  while (j < platforms.length) {
+    const platform = platforms[j]
+    if (dic_plarform[platform]) {
+      dic_plarform[platform] += 1
+    } else {
+      dic_plarform[platform] = 1
+    }
+    j++
   }
-  })
+}
 
 
-});
+//Usando ForEach
 
+// use('juegos')
+// const cursor4 = db.videogames.find({})
+// let dic_plarform = {}
 
-for(let i in dic_plarform){
+// cursor4.forEach(doc =>{
+//   doc.platforms.forEach(platform =>{
+//   if(dic_plarform[platform]){
+//     dic_plarform[platform] += 1
+//   }else{
+//     dic_plarform[platform] = 1
+//   }
+//   })
+
+for (let i in dic_plarform) {
   console.log(`Platform: ${i} - Count: ${dic_plarform[i]}`)
 }
