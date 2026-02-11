@@ -623,18 +623,19 @@ while (cursor4.hasNext()) {
 
 //Usando ForEach
 
-// use('juegos')
-// const cursor4 = db.videogames.find({})
-// let dic_plarform = {}
+use('juegos')
+const cursor5 = db.videogames.find({})
+let dic_plarform2 = {}
 
-// cursor4.forEach(doc =>{
-//   doc.platforms.forEach(platform =>{
-//   if(dic_plarform[platform]){
-//     dic_plarform[platform] += 1
-//   }else{
-//     dic_plarform[platform] = 1
-//   }
-//   })
+cursor5.forEach(doc2 =>{
+  doc2.platforms.forEach(platform =>{
+  if(dic_plarform2[platform]){
+    dic_plarform2[platform] += 1
+  }else{
+    dic_plarform2[platform] = 1
+  }
+  })
+})
 
 for (let i in dic_plarform) {
   console.log(`Platform: ${i} - Count: ${dic_plarform[i]}`)
